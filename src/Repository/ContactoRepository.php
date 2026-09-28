@@ -41,4 +41,24 @@ class ContactoRepository extends ServiceEntityRepository
     //        ;
     //    }
 
+    public function startsWith($value): array
+    {
+
+        return $this->createQueryBuilder('c')
+
+            ->andWhere('c.nombre LIKE :val')
+
+            ->setParameter('val', $value . '%')
+
+            ->orderBy('c.id', 'ASC')
+
+            ->getQuery()
+
+            ->getResult();
+
+        // La consula en sql sería SELECT nombre FROM contactos WHERE nombre LIKE ('$value%')
+
+    }
+
 }
+

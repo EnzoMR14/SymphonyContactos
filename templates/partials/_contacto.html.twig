@@ -1,5 +1,27 @@
 <ul>
-    <li><strong>{{contacto.nombre}}</strong></li>
-    <li><strong>Telefono: </strong>{{contacto.telefono}}</li>
-    <li><strong>Email:</strong> {{contacto.email}}</li>
+
+	<li>
+
+		<strong>{{ contacto.nombre }}</strong>
+
+	</li>
+
+	<li>
+
+		<strong>Teléfono</strong>:
+
+		{{ contacto.telefono }}</li>
+
+	<li>
+
+		<strong>E-mail</strong>:
+
+		{{ contacto.email }}</li>
+
+	<li>
+
+		<strong>Provincia</strong>:
+
+		{{ contacto.provincia.nombre ?? 'Sin provincia' }}</li>
+
 </ul>
