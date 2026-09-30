@@ -48,7 +48,7 @@ class ContactoFormType extends AbstractType
 
             ])
 
-            ->add('save', SubmitType::class, array('label' => 'Enviar'));
+            ->add('save', SubmitType::class, ['label' => 'Guardar']);
 
     }
 

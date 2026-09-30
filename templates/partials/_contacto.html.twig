@@ -2,7 +2,9 @@
 
 	<li>
 
-		<strong>{{ contacto.nombre }}</strong>
+		<a href="{{ path('contacto', {codigo: contacto.id}) }}">
+    <strong>{{ contacto.nombre }}</strong>
+</a>
 
 	</li>
 

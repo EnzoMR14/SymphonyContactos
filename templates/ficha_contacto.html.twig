@@ -4,10 +4,15 @@
 {% endblock %} 
 
 {% block body%}
-		{%if contacto%}
-			<h1>Ficha del contacto</h1>
-            {% include 'partials/_contacto.html.twig' with {'contacto': contacto} %}
-			{%else%}
-			<p>No se ha encontrado el contacto</p>
-			{%endif%}
-            {%endblock %}
+{%if contacto%}
+<h1>Ficha del contacto</h1>
+{% include 'partials/_contacto.html.twig' with {'contacto': contacto} %}
+
+{% if app.user %}
+    <p><a class="btn btn-primary" href="{{ path('editar', {codigo: contacto.id}) }}">Editar</a></p>
+{% endif %}
+{%else%}
+<p>No se ha encontrado el contacto</p>
+{%endif%}
+<p><a href="{{ path('inicio') }}">Volver a la portada</a></p>
+{%endblock %}

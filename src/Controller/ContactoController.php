@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use App\Form\ContactoFormType;
+use Symfony\Component\Form\SubmitButton;
+
 
 final class ContactoController extends AbstractController
 {
@@ -35,6 +37,11 @@ final class ContactoController extends AbstractController
         string $telefono,
         string $email
     ) {
+        // NUEVO: si no hay sesión, a la portada
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('inicio');
+        }
+
         $contacto = new Contacto();
         $contacto->setNombre($nombre);
         $contacto->setTelefono($telefono);
@@ -68,6 +75,11 @@ final class ContactoController extends AbstractController
     #[Route('/contacto/nuevo', name: 'nuevo')]
     public function nuevo(ManagerRegistry $doctrine, Request $request)
     {
+        // NUEVO: si no hay sesión, a la portada
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('inicio');
+        }
+
         $contacto = new Contacto();
         $formulario = $this->createForm(ContactoFormType::class, $contacto);
         $formulario->handleRequest($request);
@@ -85,6 +97,12 @@ final class ContactoController extends AbstractController
 
     public function editar(ManagerRegistry $doctrine, Request $request, int $codigo)
     {
+        // NUEVO: si no hay sesión, a la portada
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('inicio');
+        }
+
+        $entityManager = $doctrine->getManager();
         $repositorio = $doctrine->getRepository(Contacto::class);
         //En este caso, los datos los obtenemos del repositorio de contactos
         $contacto = $repositorio->find($codigo);
@@ -92,15 +110,30 @@ final class ContactoController extends AbstractController
             // A partir de $contacto, rellena automáticamente el formulario y el resto es igual que para nuevo
             $formulario = $this->createForm(ContactoFormType::class, $contacto);
 
+            // NUEVO: botón Borrar (el de guardar es el que ya tiene ContactoFormType)
+            $formulario->add('borrar', SubmitType::class, [
+                'label' => 'Eliminar',
+                'attr' => ['onclick' => "return confirm('¿Seguro que quieres eliminar este contacto?')"],
+            ]);
+
             $formulario->handleRequest($request);
 
-            if ($formulario->isSubmitted() && $formulario->isValid()) {
-                // Guardamos y redirigimos a la ficha
-                $contacto = $formulario->getData();
-                $entityManager = $doctrine->getManager();
-                $entityManager->persist($contacto);
-                $entityManager->flush();
-                return $this->redirectToRoute('contacto', ["codigo" => $contacto->getId()]);
+            if ($formulario->isSubmitted()) {
+                /** @var SubmitButton $botonBorrar */
+                $botonBorrar = $formulario->get('borrar');
+
+                // ¿Ha pulsado Borrar?
+                if ($botonBorrar->isClicked()) {
+                    $entityManager->remove($contacto);
+                    $entityManager->flush();
+                    return $this->redirectToRoute('inicio');
+                }
+
+                // Si no, ha pulsado Guardar: guardamos y redirigimos a la ficha
+                if ($formulario->isValid()) {
+                    $entityManager->flush();
+                    return $this->redirectToRoute('contacto', ["codigo" => $contacto->getId()]);
+                }
             }
             // Ponemos los datos del contacto
             return $this->render('editar.html.twig', array(
@@ -114,4 +147,3 @@ final class ContactoController extends AbstractController
     }
 
 }
-
